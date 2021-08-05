@@ -1,4 +1,5 @@
-create schema kantor_ketiga;
+-- membuat schema
+create schema kantor_keempat;
 
 select * from products group by productLine;
 
@@ -7,15 +8,18 @@ select * from customers group by country;
 -- AGGREGATE FUNCTION
 select avg(creditLimit)as Average from customers;
 
+
+
 -- count (ditotal jumlah datanya)
 select count(*) from products;
 
 -- sum (ditotal(ditambah) value nya)
 select sum(quantityInStock) as totalQuantity from products;
 
-
 -- min & max
 select min(amount) as minimumPayment from payments;
+
+select amount from payments ;
 
 select max(amount) from payments;
 
@@ -34,6 +38,10 @@ select productCode, productName,productScale from products;
 select * from products where productLine='classic Cars' limit 5,10;
 select * from products limit 5,19;
 
+select * from products where productLine='classic Cars';
+select * from products limit 5;
+
+
 -- case 1
 select customerName,city,state,country from customers where country='USA' or country='France' order by customerName limit 3,5;
 
@@ -44,7 +52,7 @@ select * from customers where salesRepEmployeeNumber is not null and country='ge
 select * from customers where salesRepEmployeeNumber is not null and creditLimit>60000 order by creditLimit limit 10,4;
 
 -- case 4
-select country, count(*), creditLimit, avg(creditLimit) as Average_Credit_Limit from customers group by country having Average_Credit_Limit order by count(*) desc ;
+select country, count(*), creditLimit, avg(creditLimit) as Average_Credit_Limit from customers group by country having Average_Credit_Limit>50000 order by count(*) desc ;
 
 select* from customers ;
 
@@ -115,4 +123,82 @@ VALUES('Headsets',7);
 INSERT INTO category(title,parent_id) 
 VALUES('Screen Protectors',7);
 
+create view Employee_per_city 
+as
+select city, count(*) as Employee_per_city from customers group by city order by Employee_per_city desc; ;
+create view HighestCreditLimitCustomerPerCountry
+as
+select country, max(creditLimit) as Highest_Credit_Limit from customers group by country 
+order by Highest_Credit_Limit desc;
 
+SELECT MAX(amount) FROM payments;
+
+SELECT 
+    customerNumber, 
+    checkNumber, 
+    amount
+FROM
+    payments
+WHERE
+    amount = (SELECT MAX(amount) FROM payments);
+    
+SELECT lastName, firstName
+FROM employees
+WHERE officeCode
+IN (SELECT officeCode FROM offices WHERE country = 'USA');
+
+select concat(lastName, ' ',firstName) as Fullname
+from employees
+where officeCode
+in (select officeCode from offices where country = 'France');
+
+select * from employees;
+select * from offices;
+SELECT officeCode FROM offices WHERE country = 'USA';
+
+
+CREATE TABLE categoryElectronic (
+  id int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  parent_id int(10) UNSIGNED DEFAULT NULL,
+  is_active int(1) UNSIGNED DEFAULT 1,
+  PRIMARY KEY (id),
+  FOREIGN KEY (parent_id) REFERENCES category (id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Electronics", null);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("TV", 1);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Smart", 2);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("4K Ultra HD", 2);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Curved", 2);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Camera", 1);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Computer", 1);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Desktop", 7);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Laptops", 7);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Work", 9);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Travel", 9);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("All Around", 9);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Gaming", 9);
+INSERT INTO categoryelectronic (name, parent_id) VALUES ("Tablet", 7);
+
+select * from categoryelectronic;
+
+select * from categoryelectronic where parent_id is null;
+
+select * from categoryelectronic where parent_id=(select id from categoryelectronic where parent_id is null);
+
+select * from employee_per_city;
+select * from payments where amount > (select avg(amount)from payments);
+select * from payments;
+select * from customers;
+
+select * from customers c 
+left join payments p 
+on c.customerNumber=p.customerNumber;
+
+select * from employees 
+left join  customers 
+on employeeNumber=salesRepEmployeeNumber
+left join payments 
+on payments.customerNumber=customers.customerNumber
+order by customerName, checkNumber;
